@@ -1,14 +1,11 @@
 package services;
 
 import exceptions.ArgumentIsNullException;
-import exceptions.ArraySizeOverflowException;
 import exceptions.IndexIsOutOfRangeException;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.impls.NumArrayImpl;
 
-import javax.lang.model.type.ArrayType;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -20,7 +17,7 @@ class NumArrayTest {
 
     @BeforeEach
     void setUp() {
-        numbers = new NumArrayImpl(5000);
+        numbers = new NumArrayImpl(10);
         Random random = new java.util.Random();
         searchedIndex = random.nextInt(numbers.size() - 1);
     }
@@ -40,9 +37,12 @@ class NumArrayTest {
     }
 
     @Test
-    void checkAddMeth() {
+    void checkAddMethWithGrow() {
+        int oldSize = numbers.toArray().length;
+        System.out.println(Arrays.toString(numbers.toArray()));
         Integer factRespond = numbers.add(125);
-        assertEquals(152, factRespond);
+        System.out.println(Arrays.toString(numbers.toArray()));
+        assertEquals((int)(oldSize * 1.5), numbers.toArray().length);
     }
 
     @Test
@@ -86,6 +86,7 @@ class NumArrayTest {
     void checkTheFastestSortMethod() {
         Integer[] numbers2 = Arrays.copyOf(numbers.toArray(), numbers.size());
         Integer[] numbers3 = Arrays.copyOf(numbers.toArray(), numbers.size());
+        Integer[] numbers4 = Arrays.copyOf(numbers.toArray(), numbers.size());
         //System.out.println("Array for Sort Challenge!");
         //System.out.println(Arrays.toString(numbers.toArray()));
         System.out.print("1 - Bubble Sort takes: ");
@@ -99,6 +100,10 @@ class NumArrayTest {
         System.out.print("3 - Insertion Sort takes: ");
         start = System.currentTimeMillis();
         numbers.theFastestSort("insertSort", numbers3);
+        System.out.println(System.currentTimeMillis() - start + " millisecs");
+        System.out.print("4 - Recursion Sort takes: ");
+        start = System.currentTimeMillis();
+        numbers.theFastestSort("recursionSort", numbers4);
         System.out.println(System.currentTimeMillis() - start + " millisecs");
     }
 

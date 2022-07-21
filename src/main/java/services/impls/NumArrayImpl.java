@@ -27,13 +27,18 @@ public class NumArrayImpl implements NumArray {
         return arr;
     }
 
+    private void grow(){
+        Integer[] bufferArray = Arrays.copyOf(integersSource, (int) (integersSource.length * 1.5));
+        integersSource = Arrays.copyOf(bufferArray, bufferArray.length);
+    }
+
     private void forceResizeArray(){
         Integer[] bufferArray = Arrays.copyOf(integersSource, integersSource.length + SIZE_DELTA_INCREMENT);
         integersSource = Arrays.copyOf(bufferArray, bufferArray.length);
     }
 
     private void forceResizeWithAddingItemArray(int index, Integer item, boolean needIncreaseSize){
-        if (needIncreaseSize) forceResizeArray();
+        if (needIncreaseSize) grow();
         for (int idx = actualArraySize - 1; idx >= index; idx--) {
             integersSource[idx+1] = integersSource[idx];
         }
@@ -85,12 +90,36 @@ public class NumArrayImpl implements NumArray {
             inpArray[j] = memoredItem;
         }
     }
+    
+    private void recursionQuickSort(Integer[] inpArray, int leftEnd, int rightEnd){
+        int j;
+        if (leftEnd < rightEnd) {
+            j = InsideCycle(inpArray, leftEnd, rightEnd);
+            recursionQuickSort(inpArray, leftEnd, j-1);
+            recursionQuickSort(inpArray, j+1, rightEnd);
+        }
+    }
+    
+    private int InsideCycle(Integer[] inpArray, int leftEnd, int rightEnd){
+        Integer memItem = inpArray[rightEnd];
+        int idx = leftEnd - 1;
+        for (int j = leftEnd; j < rightEnd; j++) {
+            if (inpArray[j] <= memItem) {
+                idx++;
+
+                flipTwoElements(inpArray, idx, j);
+            }
+        }
+        flipTwoElements(inpArray, idx + 1, rightEnd);
+        return idx + 1;
+    }
 
     public void theFastestSort(String methodName, Integer[] inpUnsortedArray) {
         switch (methodName) {
             case "bubbleSort": bubbleSort(inpUnsortedArray);
             case "selectSort": selectSort(inpUnsortedArray);
             case "insertSort": insertSort(inpUnsortedArray);
+            case "recursionSort": recursionQuickSort(inpUnsortedArray, 0, inpUnsortedArray.length-1);
         }
     }
 
@@ -111,14 +140,6 @@ public class NumArrayImpl implements NumArray {
         int minIdx = 0;
         int maxIdx = size();
         int middleIdx;
-        /*while (minIdx <= maxIdx){
-            middleIdx = maxIdx / 2;
-            if (lookedItem.equals(inpSortedArray[middleIdx]))
-                return middleIdx;
-            if (lookedItem > inpSortedArray[middleIdx])
-                minIdx = middleIdx + 1;
-            else maxIdx = middleIdx - 1;
-        }*/
         do {
             middleIdx = (maxIdx + minIdx) / 2;
             if (lookedItem.equals(inpSortedArray[middleIdx]))
@@ -133,7 +154,7 @@ public class NumArrayImpl implements NumArray {
     @Override
     public Integer add(Integer item) {
         if (item == null) throw new ArgumentIsNullException("item param string can't be NULL!");
-        if (actualArraySize == integersSource.length) forceResizeArray();
+        if (actualArraySize == integersSource.length) grow();
         integersSource[actualArraySize] = item;
         actualArraySize++;
         return integersSource[actualArraySize-1];
